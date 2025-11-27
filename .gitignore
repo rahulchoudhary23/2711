@@ -4,3 +4,4 @@ instance/*.db-journal
 .env
 .venv/
 *.pyc
+venv/
