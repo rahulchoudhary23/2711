@@ -10,7 +10,3 @@ try:
 except Exception as e:
     print("Error inside create_app():", e)
     raise e
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
