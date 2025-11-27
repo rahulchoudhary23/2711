@@ -40,8 +40,8 @@ def create_app():
     # Setup database
     with app.app_context():
         db.create_all()
-        seed_admin()
-        seed_sample_events()
+#        seed_admin()
+#        seed_sample_events()
 
     return app
 
