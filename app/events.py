@@ -8,7 +8,7 @@ from . import db
 from .models import Event, EventInterest, Registration
 
 
-events_bp = Blueprint("events", __name__)
+events_bp = Blueprint("events", __name__, url_prefix="/events")
 
 TEAM_OPTIONS = [
     "Solo",
