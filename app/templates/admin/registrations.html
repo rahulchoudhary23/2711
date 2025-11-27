@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Registrations | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="section__header">
+    <div>
+      <h1>{{ event.title }} Registrations</h1>
+      <p>{{ event.start_time.strftime('%b %d, %Y %I:%M %p') }} &middot; {{ event.location }}</p>
+    </div>
+    <a class="btn btn--ghost" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+  </div>
+
+  {% if registrations %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Attendee</th>
+          <th>Contact</th>
+          <th>Department</th>
+          <th>Section</th>
+          <th>UID</th>
+          <th>Team</th>
+          <th>Registered At</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for registration in registrations %}
+          <tr>
+            <td>{{ registration.attendee_name }}</td>
+            <td>{{ registration.attendee_email }}</td>
+            <td>{{ registration.department or '—' }}</td>
+            <td>{{ registration.section or '—' }}</td>
+            <td>{{ registration.student_uid or '—' }}</td>
+            <td>{{ registration.team_selection or '—' }}</td>
+            <td>{{ registration.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+            <td>
+              <a class="btn btn--ghost btn--small" href="{{ url_for('admin.registration_detail', registration_id=registration.id) }}">View detail</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No registrations yet.</p>
+  {% endif %}
+
+  <div class="section__header section__header--sub">
+    <div>
+      <h2>Interest List</h2>
+      <p>Attendees who asked to stay informed without completing registration.</p>
+    </div>
+  </div>
+
+  {% if interests %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Email</th>
+          <th>Note</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for interest in interests %}
+          <tr>
+            <td>{{ interest.user.name }}</td>
+            <td>{{ interest.user.email }}</td>
+            <td>{{ interest.note or '—' }}</td>
+            <td>{{ interest.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No one has marked themselves as interested yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Account Settings | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="settings-card">
+    <h1>Account Settings</h1>
+    <p class="settings-card__intro">Manage your profile and security preferences. Changes apply immediately after saving.</p>
+    <form method="post" class="form settings-form">
+      <label>
+        Display Name
+        <input type="text" name="display_name" value="{{ display_name }}" required>
+      </label>
+      <label>
+        Email Address
+        <input type="email" value="{{ current_user.email }}" readonly>
+      </label>
+      <div class="form__row">
+        <label>
+          New Password
+          <input type="password" name="password" minlength="8" placeholder="Leave blank to keep current password">
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" name="confirm_password" minlength="8" placeholder="Repeat new password">
+        </label>
+      </div>
+      <p class="settings-card__hint">Leave both password fields empty to keep your existing password.</p>
+      <button class="btn btn--primary" type="submit">Save Changes</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block title %}Home | Event Manager{% endblock %}
+{% block content %}
+{% if current_user.is_authenticated and current_user.is_admin %}
+  {% set host_url = url_for('admin.dashboard') %}
+{% elif current_user.is_authenticated %}
+  {% set host_url = url_for('events.home') ~ '#resources' %}
+{% else %}
+  {% set host_url = url_for('auth.register') %}
+{% endif %}
+
+
+
+
+<section class="section" id="highlights">
+  <div class="section__header">
+    <h2>Upcoming Highlights</h2>
+    <a class="link" href="{{ url_for('events.events_list') }}">View all events</a>
+  </div>
+  <form class="event-filter" method="get" action="{{ url_for('events.home') }}">
+    <input type="hidden" name="timeframe" value="{{ timeframe }}">
+    {% if timeframe == 'date' %}
+      <input type="hidden" name="date" value="{{ selected_date }}">
+    {% endif %}
+    <div class="event-filter__field">
+      <label class="sr-only" for="home-search">Search events</label>
+      <input type="search" id="home-search" name="q" placeholder="Search by title or venue" value="{{ search_query }}">
+    </div>
+    <div class="event-filter__field">
+      <label class="sr-only" for="home-category">Filter by category</label>
+      <select id="home-category" name="category">
+        <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All categories</option>
+        {% for category in event_types %}
+          <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn--primary btn--small" type="submit">Filter</button>
+    {% if search_query or selected_category != 'all' %}
+      <a class="event-filter__reset" href="{{ url_for('events.home') }}">Reset</a>
+    {% endif %}
+  </form>
+  <div class="quick-filters">
+    <div class="quick-filters__group">
+      <span class="quick-filters__label">Quick filters:</span>
+      <a class="quick-filters__button {% if timeframe == 'today' %}is-active{% endif %}" href="{{ url_for('events.home', q=search_query, category=selected_category, timeframe='today') }}">Today</a>
+      <a class="quick-filters__button {% if timeframe == 'this-week' %}is-active{% endif %}" href="{{ url_for('events.home', q=search_query, category=selected_category, timeframe='this-week') }}">This Week</a>
+      <a class="quick-filters__button {% if timeframe == 'this-month' %}is-active{% endif %}" href="{{ url_for('events.home', q=search_query, category=selected_category, timeframe='this-month') }}">This Month</a>
+    </div>
+    <form class="quick-filters__date" method="get" action="{{ url_for('events.home') }}">
+      <input type="hidden" name="q" value="{{ search_query }}">
+      <input type="hidden" name="category" value="{{ selected_category }}">
+      <input type="hidden" name="timeframe" value="date">
+      <label for="home-date" class="quick-filters__label">Date</label>
+      <input type="date" id="home-date" name="date" value="{{ selected_date }}">
+      <button class="btn btn--ghost btn--small" type="submit">Apply</button>
+    </form>
+  </div>
+  <p class="event-filter__results">Showing {{ filtered_count }} matching {{ 'event' if filtered_count == 1 else 'events' }}</p>
+  <div class="card-grid">
+    {% if upcoming_events %}
+      {% for event in upcoming_events %}
+        <article class="card card--event">
+          <figure class="card__thumbnail {% if not event.image_url %}card__thumbnail--placeholder{% endif %}">
+            {% if event.image_url %}
+              <img src="{{ event.image_url }}" alt="{{ event.title }} cover image">
+            {% else %}
+              <span>{{ event.event_type }}</span>
+            {% endif %}
+          </figure>
+          <div class="card__body">
+            <span class="chip">{{ event.event_type }}</span>
+            <h3>{{ event.title }}</h3>
+            <p class="card__meta">
+              <span><i class="fa fa-calendar"></i> {{ event.date_label }}</span>
+              <span><i class="fa fa-clock"></i> {{ event.time_range }}</span>
+              <span><i class="fa fa-location-dot"></i> {{ event.location }}</span>
+            </p>
+            <p>{{ event.summary }}</p>
+          </div>
+          <div class="card__footer">
+            <div class="card__actions">
+              <a class="btn btn--ghost" href="{{ url_for('events.event_detail', event_id=event.id) }}">Details</a>
+              {% if current_user.is_authenticated %}
+                <form method="post" action="{{ url_for('events.toggle_interest', event_id=event.id) }}">
+                  <input type="hidden" name="action" value="{{ 'remove' if event.id in interested_event_ids else 'save' }}">
+                  <input type="hidden" name="note" value="">
+                  <button class="btn btn--interest {% if event.id in interested_event_ids %}is-active{% endif %}" type="submit">
+                    {% if event.id in interested_event_ids %}Interested ✓{% else %}Interested{% endif %}
+                  </button>
+                </form>
+              {% else %}
+                <a class="btn btn--interest" href="{{ url_for('auth.login', next=url_for('events.event_detail', event_id=event.id)) }}">Interested</a>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <p>No upcoming events yet. Check back soon!</p>
+    {% endif %}
+  </div>
+</section>
+
+
+
+<section class="section" id="roadmap">
+  <div class="section__header">
+    <h2>Your Event Roadmap</h2>
+    <p class="section__subtitle">Follow this guided flow to launch an engaging experience.</p>
+  </div>
+  <ol class="timeline">
+    <li class="timeline__item">
+      <div class="timeline__header">
+        <span class="chip chip--accent">Step 1</span>
+        <h3>Outline your event concept</h3>
+      </div>
+      <p>Define goals, audience, and format so your event page resonates with the right people.</p>
+      <ul class="detail-list">
+        <li><strong>Helpful tip:</strong> Use agenda keywords to help attendees filter sessions.</li>
+      </ul>
+    </li>
+    <li class="timeline__item">
+      <div class="timeline__header">
+        <span class="chip chip--accent">Step 2</span>
+        <h3>Publish and promote</h3>
+      </div>
+      <p>Upload hero imagery, add resource links, and share directly with your subscriber list.</p>
+      <ul class="detail-list">
+        <li><strong>Automation:</strong> Confirmation emails include calendar holds and travel info.</li>
+      </ul>
+    </li>
+    <li class="timeline__item">
+      <div class="timeline__header">
+        <span class="chip chip--accent">Step 3</span>
+        <h3>Track registrations in real time</h3>
+      </div>
+      <p>Monitor headcount, check-ins, dietary needs, and badge status from the admin dashboard.</p>
+      <ul class="detail-list">
+        <li><strong>Dashboard:</strong> Export attendee lists or sync with your CRM at any time.</li>
+      </ul>
+    </li>
+    <li class="timeline__item">
+      <div class="timeline__header">
+        <span class="chip chip--accent">Step 4</span>
+        <h3>Measure and iterate</h3>
+      </div>
+      <p>Review feedback scores, share recordings, and duplicate proven formats for future events.</p>
+      <ul class="detail-list">
+        <li><strong>Next step:</strong> Plan your follow-up using the resources below.</li>
+      </ul>
+    </li>
+  </ol>
+</section>
+
+<section class="section section--alt" id="insights">
+  <div class="grid grid--2">
+    <div>
+      <h3>For Attendees</h3>
+      <ul class="list">
+        <li>Discover curated events tailored to your interests.</li>
+        <li>Register in seconds and get instant confirmation.</li>
+        <li>Manage your registrations from any device.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>For Organizers</h3>
+      <ul class="list">
+        <li>Create events with detailed descriptions and visuals.</li>
+        <li>Track registrations and manage attendees effortlessly.</li>
+        <li>Update schedules, venues, and capacities in real-time.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="resources">
+  <div class="section__header">
+    <h2>Resources for every role</h2>
+    <p class="section__subtitle">Save time with templates, guides, and best practices curated by our team.</p>
+  </div>
+  <div class="grid grid--3">
+    <article class="resource-card">
+      <h3 class="resource-card__title">Organizer Launch Kit</h3>
+      <p class="resource-card__meta">Download agendas, budget calculators, and promo checklists for your first event.</p>
+      <div class="resource-card__actions">
+        <a class="btn btn--outline btn--small" href="{{ host_url }}">Access Toolkit</a>
+      </div>
+    </article>
+    <article class="resource-card">
+      <h3 class="resource-card__title">Attendee Playbook</h3>
+      <p class="resource-card__meta">Share preparation tips, travel guidance, and accessibility notes with your guests.</p>
+      <div class="resource-card__actions">
+        <a class="btn btn--outline btn--small" href="{{ url_for('events.events_list') }}">Browse Sample Agendas</a>
+      </div>
+    </article>
+    <article class="resource-card">
+      <h3 class="resource-card__title">Support Knowledge Base</h3>
+      <p class="resource-card__meta">Find answers about integrations, badge printing, and onsite check-in workflows.</p>
+      <div class="resource-card__actions">
+        <a class="btn btn--outline btn--small" href="{{ url_for('events.home') }}#contact">Talk to Support</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--surface" id="voices">
+  <div class="section__header">
+    <h2>What our community is saying</h2>
+    <p class="section__subtitle">Feedback from organizers who run recurring programs with EventManage.</p>
+  </div>
+  <div class="grid grid--3">
+    <article class="quote-card">
+      <div class="quote-card__header">
+        <span class="quote-card__avatar">AR</span>
+        <div>
+          <p class="quote-card__author">Avery Ross</p>
+          <p class="quote-card__role">Program Director, BrightPath Learning</p>
+        </div>
+      </div>
+      <blockquote>"Capacity alerts and automated reminders helped us reduce no-shows by nearly half. The dashboard keeps our stakeholders aligned every week."</blockquote>
+    </article>
+    <article class="quote-card">
+      <div class="quote-card__header">
+        <span class="quote-card__avatar">JM</span>
+        <div>
+          <p class="quote-card__author">Jordan Miles</p>
+          <p class="quote-card__role">Community Lead, BuildLab</p>
+        </div>
+      </div>
+      <blockquote>"We host hybrid meetups across three cities and the platform simply scales. Check-in kiosks and badge exports are literal lifesavers for our volunteers."</blockquote>
+    </article>
+    <article class="quote-card">
+      <div class="quote-card__header">
+        <span class="quote-card__avatar">SN</span>
+        <div>
+          <p class="quote-card__author">Sasha Nguyen</p>
+          <p class="quote-card__role">Head of Events, Northwind Partners</p>
+        </div>
+      </div>
+      <blockquote>"The attendee portal helps us surface premium add-ons and drive sponsorship revenue without extra integrations."</blockquote>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="contact">
+  <div class="section__header">
+    <h2>Let&apos;s Stay Connected</h2>
+    <p class="section__subtitle">Reach out to the EventManage team for partnerships, support, or custom programs.</p>
+  </div>
+  <div class="contact-grid">
+    <article class="contact-card">
+      <h3>Support Desk</h3>
+      <p>Email: <a href="mailto:support@eventmanage.io">support@eventmanage.io</a></p>
+      <p>Phone: +1 (555) 214-0087</p>
+      <p class="contact-card__meta">Weekdays 9:00 AM - 6:00 PM</p>
+    </article>
+    <article class="contact-card">
+      <h3>Partner With Us</h3>
+      <p>Email: <a href="mailto:partners@eventmanage.io">partners@eventmanage.io</a></p>
+      <p>Dedicated program specialists ready to assist.</p>
+      <p class="contact-card__meta">Turnaround within 2 business days</p>
+    </article>
+    <article class="contact-card">
+      <h3>Visit our HQ</h3>
+      <p>500 Innovation Way<br>Suite 240<br>Seattle, WA 98109</p>
+      <p class="contact-card__meta">Open Monday - Friday</p>
+    </article>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Attendee Detail | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="section__header">
+    <div>
+      <h1>Attendee Detail</h1>
+      <p>Registered for {{ event.title }} &middot; {{ event.date_label }} at {{ event.location }}</p>
+    </div>
+    <div class="button-group">
+      <a class="btn btn--ghost" href="{{ url_for('admin.event_registrations', event_id=event.id) }}">Back to registrations</a>
+      <a class="btn btn--primary" href="mailto:{{ registration.attendee_email }}">Email attendee</a>
+    </div>
+  </div>
+
+  <article class="profile-card profile-card--wide">
+    <div class="profile-card__header">
+      <span class="profile-card__avatar">{{ registration.attendee_name[:1]|upper }}</span>
+      <div>
+        <h1>{{ registration.attendee_name }}</h1>
+        <p>{{ registration.attendee_email }}</p>
+      </div>
+    </div>
+    <div class="profile-card__stats">
+      <div>
+        <p class="stat__label">Registered on</p>
+        <p class="stat__value">{{ registration.created_at.strftime('%b %d, %Y') }}</p>
+      </div>
+      <div>
+        <p class="stat__label">Member since</p>
+        <p class="stat__value">{{ attendee.created_at.strftime('%b %d, %Y') }}</p>
+      </div>
+      <div>
+        <p class="stat__label">Total registrations</p>
+        <p class="stat__value">{{ attendee.registrations|length }}</p>
+      </div>
+    </div>
+    <div class="profile-card__actions">
+      <a class="btn btn--ghost btn--small" href="mailto:{{ registration.attendee_email }}">Send follow-up</a>
+      <a class="btn btn--ghost btn--small" href="tel:+15552140087">Call support desk</a>
+    </div>
+  </article>
+
+  <div class="detail-grid">
+    <section class="detail-panel">
+      <h2>Registration summary</h2>
+      <dl class="meta-list">
+        <div>
+          <dt>Department</dt>
+          <dd>{{ registration.department or 'Not provided' }}</dd>
+        </div>
+        <div>
+          <dt>Section / Batch</dt>
+          <dd>{{ registration.section or 'Not provided' }}</dd>
+        </div>
+        <div>
+          <dt>Unique ID</dt>
+          <dd>{{ registration.student_uid or 'Not provided' }}</dd>
+        </div>
+        <div>
+          <dt>Team selection</dt>
+          <dd>{{ registration.team_selection or 'Not provided' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="detail-panel">
+      <h2>Event logistics</h2>
+      <dl class="meta-list">
+        <div>
+          <dt>Event type</dt>
+          <dd>{{ event.event_type }}</dd>
+        </div>
+        <div>
+          <dt>Schedule</dt>
+          <dd>{{ event.time_range }}</dd>
+        </div>
+        <div>
+          <dt>Venue</dt>
+          <dd>{{ event.location }}</dd>
+        </div>
+        <div>
+          <dt>Admin notes</dt>
+          <dd>Check-in opens 30 minutes before start. Bring badge printer labels.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="detail-panel">
+      <h2>Account activity</h2>
+      {% if other_registrations %}
+        <ul class="meta-list meta-list--plain">
+          {% for item in other_registrations %}
+            <li>
+              <strong>{{ item.event.title }}</strong>
+              <span>{{ item.event.start_time.strftime('%b %d, %Y') }} &middot; {{ item.event.location }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>This attendee has not registered for other events yet.</p>
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}

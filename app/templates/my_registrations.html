@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}My Registrations | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <h1>My Event Registrations</h1>
+  {% if registrations %}
+    <ul class="timeline">
+      {% for registration in registrations %}
+        <li class="timeline__item">
+          <div class="timeline__header">
+            <span class="chip">{{ registration.event.event_type }}</span>
+            <h3>{{ registration.event.title }}</h3>
+          </div>
+          <p class="timeline__meta">
+            <i class="fa fa-calendar"></i> {{ registration.event.date_label }} ({{ registration.event.day_label }})
+            &middot; <i class="fa fa-clock"></i> {{ registration.event.time_range }}
+            &middot; <i class="fa fa-location-dot"></i> {{ registration.event.location }}
+          </p>
+          <p>{{ registration.event.summary }}</p>
+          <ul class="detail-list">
+            <li><strong>Attendee:</strong> {{ registration.attendee_name }} ({{ registration.attendee_email }})</li>
+            {% if registration.department %}<li><strong>Department:</strong> {{ registration.department }}</li>{% endif %}
+            {% if registration.section %}<li><strong>Section:</strong> {{ registration.section }}</li>{% endif %}
+            {% if registration.student_uid %}<li><strong>UID:</strong> {{ registration.student_uid }}</li>{% endif %}
+            {% if registration.team_selection %}<li><strong>Team:</strong> {{ registration.team_selection }}</li>{% endif %}
+          </ul>
+          <a class="btn btn--ghost" href="{{ url_for('events.event_detail', event_id=registration.event.id) }}">View details</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have not registered for any events yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

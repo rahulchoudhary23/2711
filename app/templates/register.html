@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up | Event Manager{% endblock %}
+{% block content %}
+<section class="auth auth--split">
+  <div class="auth__panel auth__panel--form">
+    <div class="auth__header">
+      <p class="auth__eyebrow">Join the community</p>
+      <h1>Create your EventManage account</h1>
+      <p>Unlock organizer workspaces, attendee journeys, and real-time logistics in minutes.</p>
+    </div>
+    <form method="post" class="form auth__form">
+      <label>
+        Full Name
+        <input type="text" name="name" value="{{ name or '' }}" required>
+      </label>
+      <label>
+        Email Address
+        <input type="email" name="email" value="{{ email or '' }}" required>
+      </label>
+      <div class="form__row">
+        <label>
+          Password
+          <input type="password" name="password" minlength="8" required>
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" name="confirm_password" minlength="8" required>
+        </label>
+      </div>
+      <button class="btn btn--primary" type="submit">Create Account</button>
+    </form>
+    <p class="auth__redirect">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a>.</p>
+  </div>
+  <div class="auth__panel auth__panel--showcase" style="background-image: url('https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1500&q=80');">
+    <div class="auth-showcase">
+      <p class="auth-showcase__kicker">Launch unforgettable events</p>
+      <h2>Beautiful templates, attendee CRM, and live reporting out of the box.</h2>
+      <ul class="auth-feature-list">
+        <li><i class="fa fa-circle-check"></i> Publish registration microsites instantly.</li>
+        <li><i class="fa fa-circle-check"></i> Collect detailed attendee profiles securely.</li>
+        <li><i class="fa fa-circle-check"></i> Sync agendas, badges, and analytics automatically.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

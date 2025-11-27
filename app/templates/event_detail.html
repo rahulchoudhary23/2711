@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }} | Event Manager{% endblock %}
+{% block content %}
+<section class="section section--event-detail">
+  <article class="event-detail">
+    <header class="event-banner">
+      <div class="event-banner__info">
+        <div class="event-banner__chips">
+          <span class="chip chip--accent">{{ event.event_type }}</span>
+          {% set status_label = 'Registration Open' if event.has_space() else 'Waitlist Only' %}
+          {% set status_chip = 'chip--info' if event.has_space() else 'chip--alert' %}
+          <span class="chip {{ status_chip }}">{{ status_label }}</span>
+        </div>
+        <h1>{{ event.title }}</h1>
+        <p class="event-banner__summary">{{ event.summary }}</p>
+        <ul class="event-banner__meta">
+          <li>
+            <span class="event-banner__icon"><i class="fa fa-calendar"></i></span>
+            <div>
+              <p class="event-banner__meta-label">Date</p>
+              <p class="event-banner__meta-value">{{ event.date_label }} · {{ event.day_label }}</p>
+            </div>
+          </li>
+          <li>
+            <span class="event-banner__icon"><i class="fa fa-clock"></i></span>
+            <div>
+              <p class="event-banner__meta-label">Schedule</p>
+              <p class="event-banner__meta-value">{{ event.time_range }}</p>
+            </div>
+          </li>
+          <li>
+            <span class="event-banner__icon"><i class="fa fa-location-dot"></i></span>
+            <div>
+              <p class="event-banner__meta-label">Venue</p>
+              <p class="event-banner__meta-value">{{ event.location }}</p>
+            </div>
+          </li>
+          <li>
+            <span class="event-banner__icon"><i class="fa fa-users"></i></span>
+            <div>
+              <p class="event-banner__meta-label">Capacity</p>
+              <p class="event-banner__meta-value">{{ event.seats_remaining }} of {{ event.capacity }} seats remaining</p>
+            </div>
+          </li>
+        </ul>
+
+        {% if current_user.is_authenticated and current_user.is_admin %}
+          <div class="event-admin-toolbar">
+            <a class="btn btn--small" href="{{ url_for('admin.edit_event', event_id=event.id) }}"><i class="fa fa-pen"></i> Edit Event</a>
+            <a class="btn btn--small" href="{{ url_for('admin.event_registrations', event_id=event.id) }}"><i class="fa fa-list"></i> View Registrations</a>
+            <form method="post" action="{{ url_for('admin.delete_event', event_id=event.id) }}" onsubmit="return confirm('Delete this event?');">
+              <button class="btn btn--danger btn--small" type="submit"><i class="fa fa-trash"></i> Delete</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="event-banner__aside">
+        {% if event.image_url %}
+          <figure class="event-banner__media">
+            <img src="{{ event.image_url }}" alt="{{ event.title }} promotional cover">
+          </figure>
+        {% endif %}
+        {% set team_summary = team_options|join(' · ') %}
+        <div class="event-glance">
+          <div class="event-glance__item">
+            <span class="event-glance__icon"><i class="fa fa-ticket"></i></span>
+            <div>
+              <p class="event-glance__label">Seat availability</p>
+              <p class="event-glance__value">{{ event.seats_remaining }} of {{ event.capacity }} seats on offer</p>
+            </div>
+          </div>
+          <div class="event-glance__item">
+            <span class="event-glance__icon"><i class="fa fa-users-gear"></i></span>
+            <div>
+              <p class="event-glance__label">Team formats</p>
+              <p class="event-glance__value">{{ team_summary }}</p>
+            </div>
+          </div>
+          <div class="event-glance__item">
+            <span class="event-glance__icon"><i class="fa fa-door-open"></i></span>
+            <div>
+              <p class="event-glance__label">Check-in guidance</p>
+              <p class="event-glance__value">Arrive 20 minutes early for verification.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="event-content-grid">
+      <div class="event-content-main">
+        <section class="event-panel">
+          <h2 class="event-panel__title">About this experience</h2>
+          <div class="event-panel__grid event-panel__grid--split">
+            <div class="event-richtext">{{ event.description | safe }}</div>
+            <ul class="event-highlights">
+              <li><i class="fa fa-lightbulb"></i> Curated sessions focused on meaningful takeaways.</li>
+              <li><i class="fa fa-people-group"></i> Collaborative formats designed to help you build connections.</li>
+              <li><i class="fa fa-clipboard-check"></i> Structured agenda with breaks, networking, and post-event resources.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="event-panel">
+          <h2 class="event-panel__title">Participation rules</h2>
+          <div class="event-panel__grid event-panel__grid--split">
+            <ol class="event-rules">
+              <li>Arrive 20 minutes early for check-in and verification with your unique ID.</li>
+              <li>Participation is limited to registered attendees only. Badge sharing is not permitted.</li>
+              <li>Follow the facilitator directions during workshops and respect time limits.</li>
+              <li>Capture content responsibly—ask before recording sessions or taking photos.</li>
+              <li>Uphold our code of conduct: be inclusive, professional, and supportive of peers.</li>
+            </ol>
+            <div class="event-note">
+              <h3>Need-to-know</h3>
+              <p>By confirming your spot you agree to the participation guidelines above. Our team reserves the right to adjust seating and session access to ensure a safe and productive environment for everyone.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="event-panel">
+          <h2 class="event-panel__title">How to prepare</h2>
+          <div class="event-panel__grid event-panel__grid--split">
+            <div>
+              <h3 class="event-prep__title"><i class="fa fa-clipboard-list"></i> Checklist</h3>
+              <ul>
+                <li>Bring a government-issued ID or organizational badge matching the details you provide.</li>
+                <li>Prepare any decks, demos, or questions you would like to explore with speakers.</li>
+                <li>Review the agenda in advance and plan the sessions you want to prioritize.</li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="event-prep__title"><i class="fa fa-wifi"></i> On-site services</h3>
+              <ul>
+                <li>Secure Wi-Fi will be provided. Bring your own device and accessories.</li>
+                <li>Refreshments are available throughout the day with vegetarian options.</li>
+                <li>Accessibility needs? Let us know in your registration so we can support you.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="event-sidebar">
+        <div class="event-sidecard">
+          <h3>Event snapshot</h3>
+          <dl>
+            <div>
+              <dt>Date</dt>
+              <dd>{{ event.date_label }}</dd>
+            </div>
+            <div>
+              <dt>Time</dt>
+              <dd>{{ event.time_range }}</dd>
+            </div>
+            <div>
+              <dt>Venue</dt>
+              <dd>{{ event.location }}</dd>
+            </div>
+            <div>
+              <dt>Format</dt>
+              <dd>{{ event.event_type }}</dd>
+            </div>
+            <div>
+              <dt>Seat status</dt>
+              <dd>{{ event.seats_remaining }} of {{ event.capacity }} remaining</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="event-sidecard">
+          <h3>Contact & support</h3>
+          <p>Questions before you arrive? Our event desk is happy to help.</p>
+          <ul class="event-contact-list">
+            <li><i class="fa fa-envelope"></i> support@eventmanage.io</li>
+            <li><i class="fa fa-phone"></i> +1 (555) 214-0087</li>
+            <li><i class="fa fa-message"></i> Live chat opens 1 hour before start time.</li>
+          </ul>
+          <p class="event-sidecard__footer">Please include your name and unique ID when reaching out so we can respond quickly.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="event-registration">
+      {% if current_user.is_authenticated %}
+        {% if current_user.is_admin %}
+          <div class="event-alert event-alert--info">
+            <i class="fa fa-circle-info"></i>
+            <p>You&apos;re viewing the attendee page as an administrator. Public registration is shown below for reference.</p>
+          </div>
+        {% elif is_registered %}
+          <div class="registration-callout">
+            <h2>You&apos;re registered!</h2>
+            <p>Need to make changes? Cancel your spot and register again so we capture the latest details.</p>
+            <form method="post" action="{{ url_for('events.unregister_from_event', event_id=event.id) }}">
+              <button class="btn btn--secondary" type="submit">Cancel Registration</button>
+            </form>
+          </div>
+        {% elif not event.has_space() %}
+          <div class="event-alert event-alert--danger">
+            <i class="fa fa-warning"></i>
+            <p>Registration is closed. All seats have been allocated for this event.</p>
+          </div>
+        {% else %}
+          <section class="registration-card">
+            <header>
+              <h2>Secure your spot</h2>
+              <p>Every field is required so we can tailor logistics, access badges, and communications.</p>
+            </header>
+            <form method="post" action="{{ url_for('events.register_for_event', event_id=event.id) }}" class="form">
+              <div class="form__row">
+                <label>
+                  Full Name
+                  <input type="text" name="attendee_name" value="{{ current_user.name }}" required>
+                </label>
+                <label>
+                  Email
+                  <input type="email" name="attendee_email" value="{{ current_user.email }}" required>
+                </label>
+              </div>
+              <div class="form__row">
+                <label>
+                  Department
+                  <input type="text" name="department" placeholder="e.g. Engineering" required>
+                </label>
+                <label>
+                  Section / Batch
+                  <input type="text" name="section" placeholder="e.g. Cohort A" required>
+                </label>
+              </div>
+              <div class="form__row">
+                <label>
+                  Unique ID
+                  <input type="text" name="student_uid" placeholder="Student or Employee ID" required>
+                </label>
+                <label>
+                  Team Selection
+                  <select name="team_selection" required>
+                    <option value="">Choose option</option>
+                    {% for option in team_options %}
+                      <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+              </div>
+              <div class="form__row">
+                <label class="form__agreement">
+                  <input type="checkbox" name="agreement" value="true" required>
+                  I confirm the details provided are accurate and I agree to the event participation rules.
+                </label>
+              </div>
+              <button class="btn btn--primary" type="submit">Confirm Registration</button>
+            </form>
+          </section>
+        {% endif %}
+        {% if not current_user.is_admin and not is_registered %}
+          <section class="interest-card">
+            <h3>Just exploring?</h3>
+            <p>Let us know you&apos;re interested and the admin team will keep you updated when seats open or logistics change.</p>
+            <form method="post" action="{{ url_for('events.toggle_interest', event_id=event.id) }}" class="form">
+              <input type="hidden" name="action" value="save">
+              <label>
+                Optional note for organizers
+                <textarea name="note" rows="3" placeholder="Share questions or context">{{ interest_note | trim }}</textarea>
+              </label>
+              <button class="btn btn--outline" type="submit">{{ 'Update Interest' if is_interested else 'Mark Me as Interested' }}</button>
+            </form>
+            {% if is_interested %}
+              <form method="post" action="{{ url_for('events.toggle_interest', event_id=event.id) }}">
+                <input type="hidden" name="action" value="remove">
+                <button class="btn btn--ghost btn--small" type="submit">Remove Interest</button>
+              </form>
+            {% endif %}
+          </section>
+        {% endif %}
+      {% else %}
+        <div class="event-alert event-alert--info">
+          <i class="fa fa-lock"></i>
+          <p>Please sign in to continue with your registration. Don&apos;t have an account yet? Create one in minutes.</p>
+          <a class="btn btn--primary" href="{{ url_for('auth.login', next=request.path) }}">Log in to register</a>
+        </div>
+      {% endif %}
+    </div>
+  </article>
+</section>
+{% endblock %}

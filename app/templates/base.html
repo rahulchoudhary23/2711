@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Event Manager{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-1P9TywWZLxE+nobVhtSGcVwqDAVBBusZT6F4LmSpaV0t1Ik5+pUvNbK/CtYQgQki71R+xVQUNBM8DT6vTL0/2g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script>
+      tailwind = {
+        config: {
+          corePlugins: {
+            preflight: false,
+          },
+          theme: {
+            extend: {
+              colors: {
+                'dashboard-navy': '#0f172a',
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="navbar">
+        <div class="navbar__left">
+          <a class="navbar__brand" href="{{ url_for('events.home') }}">EventManage</a>
+          <button id="navToggle" class="navbar__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            <i class="fa fa-bars"></i>
+          </button>
+          <div class="navbar__links" id="navMenu">
+            <a href="{{ url_for('events.home') }}">Home</a>
+            <a href="{{ url_for('events.events_list') }}">Events</a>
+            <a href="{{ url_for('events.home') }}#highlights">Highlights</a>
+            <a href="{{ url_for('events.home') }}#insights">Insights</a>
+            <a href="{{ url_for('events.home') }}#contact">Contact</a>
+            {% if current_user.is_authenticated %}
+              <a href="{{ url_for('events.my_registrations') }}">My Registrations</a>
+              {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+        <div class="navbar__right">
+          <div class="navbar__user">
+            <button id="userToggle" class="navbar__user-button" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
+              <span class="navbar__avatar">
+                {% if current_user.is_authenticated %}
+                  {{ current_user.name[:1]|upper }}
+                {% else %}
+                  <i class="fa fa-user"></i>
+                {% endif %}
+              </span>
+              <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="navbar__user-menu" id="userMenu" role="menu">
+              {% if current_user.is_authenticated %}
+                <p class="navbar__user-greeting">Hello, {{ current_user.name.split(' ')[0] }}</p>
+                <a href="{{ url_for('auth.account') }}" role="menuitem"><i class="fa fa-id-badge"></i> Account</a>
+                <a href="{{ url_for('auth.settings') }}" role="menuitem"><i class="fa fa-gear"></i> Settings</a>
+                <a href="{{ url_for('events.my_registrations') }}" role="menuitem"><i class="fa fa-calendar-check"></i> My Registrations</a>
+                {% if current_user.is_admin %}
+                  <a href="{{ url_for('admin.dashboard') }}" role="menuitem"><i class="fa fa-gauge-high"></i> Admin Dashboard</a>
+                {% endif %}
+                <div class="navbar__user-divider"></div>
+                <a href="{{ url_for('auth.logout') }}" role="menuitem" class="logout"><i class="fa fa-right-from-bracket"></i> Logout</a>
+              {% else %}
+                <a href="{{ url_for('auth.login') }}" role="menuitem"><i class="fa fa-right-to-bracket"></i> Log In</a>
+                <a href="{{ url_for('auth.register') }}" role="menuitem"><i class="fa fa-user-plus"></i> Sign Up</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, message in messages %}
+              <div class="flash flash--{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; {{ current_year or 2025 }} EventManage. All rights reserved.</p>
+      {% if not current_user.is_authenticated %}
+        <p class="site-footer__admin-link"><a href="{{ url_for('auth.login') }}">Admin Login</a></p>
+      {% endif %}
+    </footer>
+  </body>
+</html>

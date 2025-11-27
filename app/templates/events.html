@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Events | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="section__header">
+    <h1>All Events</h1>
+    {% if current_user.is_authenticated and current_user.is_admin %}
+      <a class="btn btn--small" href="{{ url_for('admin.create_event') }}">Create Event</a>
+    {% endif %}
+  </div>
+
+  <form class="event-filter" method="get" action="{{ url_for('events.events_list') }}">
+    <input type="hidden" name="timeframe" value="{{ timeframe }}">
+    {% if timeframe == 'date' %}
+      <input type="hidden" name="date" value="{{ selected_date }}">
+    {% endif %}
+    <div class="event-filter__field">
+      <label class="sr-only" for="events-search">Search events</label>
+      <input type="search" id="events-search" name="q" placeholder="Search by name, venue, or keyword" value="{{ search_query }}">
+    </div>
+    <div class="event-filter__field">
+      <label class="sr-only" for="events-category">Filter by category</label>
+      <select id="events-category" name="category">
+        <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All categories</option>
+        {% for category in event_types %}
+          <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn--primary btn--small" type="submit">Filter</button>
+    {% if search_query or selected_category != 'all' %}
+      <a class="event-filter__reset" href="{{ url_for('events.events_list') }}">Reset</a>
+    {% endif %}
+  </form>
+  <div class="quick-filters">
+    <div class="quick-filters__group">
+      <span class="quick-filters__label">Quick filters:</span>
+      <a class="quick-filters__button {% if timeframe == 'today' %}is-active{% endif %}" href="{{ url_for('events.events_list', q=search_query, category=selected_category, timeframe='today') }}">Today</a>
+      <a class="quick-filters__button {% if timeframe == 'this-week' %}is-active{% endif %}" href="{{ url_for('events.events_list', q=search_query, category=selected_category, timeframe='this-week') }}">This Week</a>
+      <a class="quick-filters__button {% if timeframe == 'this-month' %}is-active{% endif %}" href="{{ url_for('events.events_list', q=search_query, category=selected_category, timeframe='this-month') }}">This Month</a>
+    </div>
+    <form class="quick-filters__date" method="get" action="{{ url_for('events.events_list') }}">
+      <input type="hidden" name="q" value="{{ search_query }}">
+      <input type="hidden" name="category" value="{{ selected_category }}">
+      <input type="hidden" name="timeframe" value="date">
+      <label for="events-date" class="quick-filters__label">Date</label>
+      <input type="date" id="events-date" name="date" value="{{ selected_date }}">
+      <button class="btn btn--ghost btn--small" type="submit">Apply</button>
+    </form>
+  </div>
+
+  <p class="event-filter__results">Showing {{ total_results }} {{ 'event' if total_results == 1 else 'events' }}</p>
+
+  {% if events %}
+    <div class="card-grid">
+      {% for event in events %}
+        <article class="card card--event">
+          <figure class="card__thumbnail {% if not event.image_url %}card__thumbnail--placeholder{% endif %}">
+            {% if event.image_url %}
+              <img src="{{ event.image_url }}" alt="{{ event.title }} cover image">
+            {% else %}
+              <span>{{ event.event_type }}</span>
+            {% endif %}
+          </figure>
+          <div class="card__body">
+            <span class="chip">{{ event.event_type }}</span>
+            <h3>{{ event.title }}</h3>
+            <p class="card__meta">
+              <span><i class="fa fa-calendar"></i> {{ event.date_label }} ({{ event.day_label }})</span>
+              <span><i class="fa fa-clock"></i> {{ event.time_range }}</span>
+              <span><i class="fa fa-location-dot"></i> {{ event.location }}</span>
+            </p>
+            <p>{{ event.summary }}</p>
+          </div>
+          <div class="card__footer">
+            <div class="card__actions">
+              <a class="btn btn--ghost" href="{{ url_for('events.event_detail', event_id=event.id) }}">View Details</a>
+              {% if current_user.is_authenticated %}
+                <form method="post" action="{{ url_for('events.toggle_interest', event_id=event.id) }}">
+                  <input type="hidden" name="action" value="{{ 'remove' if event.id in interested_event_ids else 'save' }}">
+                  <input type="hidden" name="note" value="">
+                  <button class="btn btn--interest {% if event.id in interested_event_ids %}is-active{% endif %}" type="submit">
+                    {% if event.id in interested_event_ids %}Interested ✓{% else %}Interested{% endif %}
+                  </button>
+                </form>
+              {% else %}
+                <a class="btn btn--interest" href="{{ url_for('auth.login', next=url_for('events.event_detail', event_id=event.id)) }}">Interested</a>
+              {% endif %}
+            </div>
+            <span class="badge">{{ event.seats_remaining }} seats left</span>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No events available right now.</p>
+  {% endif %}
+</section>
+{% endblock %}

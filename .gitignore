@@ -1,0 +1,6 @@
+__pycache__/
+instance/*.db
+instance/*.db-journal
+.env
+.venv/
+*.pyc

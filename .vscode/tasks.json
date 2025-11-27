@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Flask Server",
+			"type": "shell",
+			"command": "C:/Users/sharm/AppData/Local/Programs/Python/Python313/python.exe",
+			"args": [
+				"-m",
+				"flask",
+				"--app",
+				"app",
+				"run"
+			],
+			"isBackground": true,
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Run Flask App",
+			"type": "shell",
+			"command": "flask",
+			"args": [
+				"--app",
+				"app",
+				"run",
+				"--debug"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "none"
+		}
+	]
+}

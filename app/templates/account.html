@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}My Account | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="profile-card">
+    <div class="profile-card__header">
+      <div class="profile-card__avatar">{{ current_user.name[:1]|upper }}</div>
+      <div>
+        <h1>{{ current_user.name }}</h1>
+        <p>{{ current_user.email }}</p>
+      </div>
+    </div>
+    <div class="profile-card__stats">
+      <div>
+        <span class="stat__value">{{ registration_count }}</span>
+        <span class="stat__label">Registrations</span>
+      </div>
+      <div>
+        <span class="stat__value">{{ current_user.created_at.strftime('%b %d, %Y') }}</span>
+        <span class="stat__label">Member Since</span>
+      </div>
+      <div>
+        <span class="stat__value">{{ 'Admin' if current_user.is_admin else 'Attendee' }}</span>
+        <span class="stat__label">Role</span>
+      </div>
+    </div>
+    <div class="profile-card__actions">
+      <a class="btn btn--primary btn--small" href="{{ url_for('events.my_registrations') }}">View Registrations</a>
+      <a class="btn btn--secondary btn--small" href="{{ url_for('auth.settings') }}">Account Settings</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

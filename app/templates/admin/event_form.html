@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit Event' if event else 'Create Event' }} | Event Manager{% endblock %}
+{% block content %}
+<section class="section">
+  <h1>{{ 'Edit Event' if event else 'Create Event' }}</h1>
+  <form method="post" action="{{ form_action }}" class="form">
+    <label>
+      Title
+      <input type="text" name="title" value="{{ form_defaults.title }}" required>
+    </label>
+    <label>
+      Summary
+      <input type="text" name="summary" value="{{ form_defaults.summary }}" maxlength="300" required>
+    </label>
+    <label>
+      Description
+      <textarea name="description" rows="6" required>{{ form_defaults.description }}</textarea>
+    </label>
+    <label>
+      Location
+      <input type="text" name="location" value="{{ form_defaults.location }}" required>
+    </label>
+    <label>
+      Event Type
+      <select name="event_type" required>
+        {% for option in event_types %}
+          <option value="{{ option }}" {% if form_defaults.event_type == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="form__row">
+      <label>
+        Start Time
+        <input type="datetime-local" name="start_time" value="{{ form_defaults.start_time }}" required>
+      </label>
+      <label>
+        End Time
+        <input type="datetime-local" name="end_time" value="{{ form_defaults.end_time }}" required>
+      </label>
+    </div>
+    <label>
+      Capacity
+      <input type="number" name="capacity" min="1" value="{{ form_defaults.capacity }}" required>
+    </label>
+    <label>
+      Image URL (optional)
+      <input type="url" name="image_url" value="{{ form_defaults.image_url }}">
+    </label>
+    <button class="btn btn--primary" type="submit">{{ 'Save Changes' if event else 'Create Event' }}</button>
+  </form>
+</section>
+{% endblock %}
