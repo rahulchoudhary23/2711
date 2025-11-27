@@ -1,4 +1,1 @@
-web: gunicorn wsgi:app --log-level debug
-
-
-
+web: gunicorn wsgi:app --bind 0.0.0.0:$PORT --log-level debug
