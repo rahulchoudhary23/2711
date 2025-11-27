@@ -36,9 +36,18 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
 
+    # ---------------------------
+    # ADD HOME ROUTE HERE
+    # ---------------------------
+    @app.route("/")
+    def home():
+        return "App is live!"
+
+    # Setup database and seed data
     with app.app_context():
         db.create_all()
         seed_admin()
         seed_sample_events()
 
     return app
+
